@@ -115,11 +115,15 @@ func (m productHandler) deleteProduct(c *gin.Context) {
 		c.AbortWithStatusJSON(err.Status(), err)
 		return
 	}
-	response, err := m.productService.GetProductById(productId)
+
+	product := &entity.Product{Id: productId}
+
+	response, err := m.productService.DeleteProduct(product)
 
 	if err != nil {
 		c.AbortWithStatusJSON(err.Status(), err)
 		return
 	}
-	c.JSON(response.StatusCode, response)
+
+	c.JSON(response.Id, response)
 }

@@ -12,7 +12,7 @@ import (
 type ProductService interface {
 	CreateProduct(userId int, payload dto.NewProductRequest) (*dto.NewProductResponse, errs.MessageErr)
 	UpdateProductById(productId int, productRequest dto.NewProductRequest) (*dto.NewProductResponse, errs.MessageErr)
-	// GetProductById
+	DeleteProduct(product *entity.Product) (*entity.Product, errs.MessageErr)
 	GetProductById(productId int) (*dto.GetProductByIdResponse, errs.MessageErr)
 	GetProduct() (*dto.GetProductsResponse, errs.MessageErr)
 }
@@ -100,29 +100,6 @@ func (p *productService) GetProduct() (*dto.GetProductsResponse, errs.MessageErr
 	return &result, nil
 }
 
-// func (m *productService) GetProduct() (*dto.GetProductsResponse, errs.MessageErr) {
-// 	products, err := m.productRepo.GetProduct()
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	productResponse := []dto.ProductResponse{}
-
-// 	for _, eachProduct := range products {
-// 		productResponse = append(productResponse, eachProduct.EntityToProductResponseDto())
-// 	}
-
-// 	response := dto.GetProductsResponse{
-// 		Result:     "success",
-// 		StatusCode: http.StatusOK,
-// 		Message:    "product data have been sent successfully",
-// 		Data:       productResponse,
-// 	}
-
-// 	return &response, nil
-// }
-
 func (m *productService) GetProductById(productId int) (*dto.GetProductByIdResponse, errs.MessageErr) {
 	result, err := m.productRepo.GetProductById(productId)
 
@@ -147,19 +124,12 @@ func (m *productService) GetProductById(productId int) (*dto.GetProductByIdRespo
 	return &response, nil
 }
 
-func (m *productService) deleteProduct(productId int) (*dto.GetProductByIdResponse, errs.MessageErr) {
-	result, err := m.productRepo.GetProductById(productId)
-
+func (m *productService) DeleteProduct(product *entity.Product) (*entity.Product, errs.MessageErr) {
+	prod := &entity.Product{Id: product.Id}
+	deletedProduct, err := m.productRepo.DeleteProduct(prod)
 	if err != nil {
 		return nil, err
 	}
 
-	response := dto.GetProductByIdResponse{
-		Result:     "success",
-		StatusCode: http.StatusOK,
-		Message:    "product data have been sent successfully",
-		Data:       result.EntityToProductResponseDto(),
-	}
-
-	return &response, nil
+	return deletedProduct, nil
 }

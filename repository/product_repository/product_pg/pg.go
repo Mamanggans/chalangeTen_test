@@ -14,6 +14,11 @@ const (
 		SELECT id, title, userId, price, createdAt, updatedAt from "products"
 		WHERE id = $1;
 	`
+
+	deleteProductByIdQuery = `
+	DELETE FROM "products"
+	WHERE id = $1;
+`
 	getProductQuery = `
 	SELECT "id", "title", "price", "userid", "createdat", "updatedat"  from "products"
 	ORDER BY "id" ASC
@@ -46,25 +51,28 @@ func (m *productPG) UpdateProductById(payload entity.Product) errs.MessageErr {
 
 	return nil
 }
-func (m *productPG) deleteProduct(productId int) errs.MessageErr {
+func (m *productPG) DeleteProduct(product *entity.Product) (*entity.Product, errs.MessageErr) {
+	row := m.db.QueryRow(deleteProductByIdQuery, product.Id)
 
-	row := m.db.QueryRow(getProductByIdQuery, productId)
+	var p entity.Product
 
-	var product entity.Product
-
-	err := row.Scan(&product.Id, &product.Title, &product.UserId, &product.Price, &product.CreatedAt, &product.UpdatedAt)
+	err := row.Scan(&p.Id, &p.Title, &p.UserId, &p.Price, &p.CreatedAt, &p.UpdatedAt)
 
 	if err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
-			return errs.NewNotFoundError("product not found please check again your product")
+			return nil, errs.NewUnauthorizedError("your prooduct has been succesfully deleted, please ignore this error and check again your product it will be erased in the database")
 		}
 
-		return errs.NewInternalServerError("something went wrong")
+		return nil, errs.NewInternalServerError("something went wrong")
 	}
 
-	// delete(m.product, productId)
+	_, err = m.db.Exec(deleteProductByIdQuery, product.Id)
 
-	return nil
+	if err != nil {
+		return nil, errs.NewInternalServerError("something went wrong")
+	}
+
+	return &p, nil
 }
 func (m *productPG) GetProductById(productId int) (*entity.Product, errs.MessageErr) {
 	row := m.db.QueryRow(getProductByIdQuery, productId)

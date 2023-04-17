@@ -10,6 +10,7 @@ var (
 	GetProductById    func(productId int) (*entity.Product, errs.MessageErr)
 	UpdateProductById func(payload entity.Product) errs.MessageErr
 	GetProducts       func() ([]*entity.Product, errs.MessageErr)
+	DeleteProduct     func(product *entity.Product) (*entity.Product, errs.MessageErr)
 )
 
 type productRepoMock struct{}
@@ -30,4 +31,7 @@ func (m *productRepoMock) GetProductById(productId int) (*entity.Product, errs.M
 }
 func (m *productRepoMock) UpdateProductById(payload entity.Product) errs.MessageErr {
 	return UpdateProductById(payload)
+}
+func (m *productRepoMock) DeleteProduct(product *entity.Product) (*entity.Product, errs.MessageErr) {
+	return DeleteProduct(product)
 }

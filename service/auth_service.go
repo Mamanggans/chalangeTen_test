@@ -51,7 +51,7 @@ func (a *authService) Authorization() gin.HandlerFunc {
 		}
 
 		if product.UserId != user.Id {
-			unauthorizedErr := errs.NewUnauthorizedError("this is not your book data so you cannot modify the product data")
+			unauthorizedErr := errs.NewUnauthorizedError("this is not your book data so you cannot modify nor see by id the product data")
 			ctx.AbortWithStatusJSON(unauthorizedErr.Status(), unauthorizedErr)
 			return
 		}

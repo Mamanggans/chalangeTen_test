@@ -108,3 +108,18 @@ func (m productHandler) GetProductById(c *gin.Context) {
 	}
 	c.JSON(response.StatusCode, response)
 }
+func (m productHandler) deleteProduct(c *gin.Context) {
+	productId, err := helpers.GetParamId(c, "productId")
+
+	if err != nil {
+		c.AbortWithStatusJSON(err.Status(), err)
+		return
+	}
+	response, err := m.productService.GetProductById(productId)
+
+	if err != nil {
+		c.AbortWithStatusJSON(err.Status(), err)
+		return
+	}
+	c.JSON(response.StatusCode, response)
+}

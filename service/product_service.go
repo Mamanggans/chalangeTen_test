@@ -146,3 +146,20 @@ func (m *productService) GetProductById(productId int) (*dto.GetProductByIdRespo
 
 	return &response, nil
 }
+
+func (m *productService) deleteProduct(productId int) (*dto.GetProductByIdResponse, errs.MessageErr) {
+	result, err := m.productRepo.GetProductById(productId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	response := dto.GetProductByIdResponse{
+		Result:     "success",
+		StatusCode: http.StatusOK,
+		Message:    "product data have been sent successfully",
+		Data:       result.EntityToProductResponseDto(),
+	}
+
+	return &response, nil
+}

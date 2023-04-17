@@ -14,7 +14,10 @@ const (
 		SELECT id, title, userId, price, createdAt, updatedAt from "products"
 		WHERE id = $1;
 	`
-
+	getProductQuery = `
+	SELECT "id", "title", "price", "userid", "createdat", "updatedat"  from "products"
+	ORDER BY "id" ASC
+`
 	updateProductByIdQuery = `
 		UPDATE "products"
 		SET title = $2,
@@ -43,7 +46,26 @@ func (m *productPG) UpdateProductById(payload entity.Product) errs.MessageErr {
 
 	return nil
 }
+func (m *productPG) deleteProduct(productId int) errs.MessageErr {
 
+	row := m.db.QueryRow(getProductByIdQuery, productId)
+
+	var product entity.Product
+
+	err := row.Scan(&product.Id, &product.Title, &product.UserId, &product.Price, &product.CreatedAt, &product.UpdatedAt)
+
+	if err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			return errs.NewNotFoundError("product not found please check again your product")
+		}
+
+		return errs.NewInternalServerError("something went wrong")
+	}
+
+	// delete(m.product, productId)
+
+	return nil
+}
 func (m *productPG) GetProductById(productId int) (*entity.Product, errs.MessageErr) {
 	row := m.db.QueryRow(getProductByIdQuery, productId)
 
@@ -63,7 +85,29 @@ func (m *productPG) GetProductById(productId int) (*entity.Product, errs.Message
 }
 
 func (m *productPG) GetProduct() ([]*entity.Product, errs.MessageErr) {
-	return nil, nil
+	rows, err := m.db.Query(getProductQuery)
+
+	if err != nil {
+		return nil, errs.NewInternalServerError("something went wrong")
+	}
+
+	defer rows.Close()
+
+	var products []*entity.Product
+
+	for rows.Next() {
+		var product entity.Product
+
+		err = rows.Scan(&product.Id, &product.Title, &product.Price, &product.UserId, &product.CreatedAt, &product.UpdatedAt)
+
+		if err != nil {
+			return nil, errs.NewInternalServerError("something went wrong")
+		}
+
+		products = append(products, &product)
+	}
+
+	return products, nil
 }
 
 func (m *productPG) CreateProduct(productPayload *entity.Product) (*entity.Product, errs.MessageErr) {

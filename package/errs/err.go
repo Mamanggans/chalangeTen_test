@@ -2,6 +2,8 @@ package errs
 
 import "net/http"
 
+type successMessage string
+
 type MessageErr interface {
 	Message() string
 	Status() int
@@ -72,4 +74,20 @@ func NewUnprocessibleEntityError(message string) MessageErr {
 		ErrStatus:  http.StatusUnprocessableEntity,
 		ErrError:   "INVALID_REQUEST_BODY",
 	}
+}
+
+func (s successMessage) Error() string {
+	return string(s)
+}
+
+func (s successMessage) Message() string {
+	return string(s)
+}
+
+func (s successMessage) Status() int {
+	return http.StatusOK
+}
+
+func NewSuccessMessage(message string) MessageErr {
+	return successMessage(message)
 }
